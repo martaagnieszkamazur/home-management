@@ -1,0 +1,3 @@
+package com.martamazurkozlowska.homemanagement.ui.taskcategory
+
+interface BaseTaskListItemUiModel
