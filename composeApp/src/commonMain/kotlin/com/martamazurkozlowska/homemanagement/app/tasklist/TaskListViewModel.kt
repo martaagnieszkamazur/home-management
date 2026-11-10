@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlin.collections.emptyList
 
 class TaskListViewModel(
     private val repository: TaskListRepository,
@@ -18,14 +19,16 @@ class TaskListViewModel(
 
     private var taskList: List<TaskItemUiModel> = emptyList()
 
-    val taskListFlow: StateFlow<List<BaseTaskListItemUiModel>> =
+    val viewStateFlow: StateFlow<TaskListViewState.Content> =
         repository.getTaskList().map { it.sortedBy { it.remainingDays } }.map {
             this.taskList = it
-            getCategorizedItems(it)
+            val categorizedList = getCategorizedItems(it)
+            val content = TaskListViewState.Content(categorizedList)
+            content
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
-            initialValue = emptyList(),
+            initialValue = TaskListViewState.Content(emptyList()),
         )
 
     fun onCompleteClick(task: TaskItemUiModel) {
