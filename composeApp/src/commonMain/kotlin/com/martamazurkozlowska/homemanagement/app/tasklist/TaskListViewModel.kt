@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlin.collections.emptyList
 
 class TaskListViewModel(
     private val repository: TaskListRepository,
@@ -19,12 +18,15 @@ class TaskListViewModel(
 
     private var taskList: List<TaskItemUiModel> = emptyList()
 
-    val viewStateFlow: StateFlow<TaskListViewState.Content> =
+    val viewStateFlow: StateFlow<TaskListViewState> =
         repository.getTaskList().map { it.sortedBy { it.remainingDays } }.map {
             this.taskList = it
-            val categorizedList = getCategorizedItems(it)
-            val content = TaskListViewState.Content(categorizedList)
-            content
+            if (it.isEmpty()) {
+                TaskListViewState.Empty
+            } else {
+                val categorizedList = getCategorizedItems(it)
+                TaskListViewState.Content(categorizedList)
+            }
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
@@ -86,8 +88,8 @@ class TaskListViewModel(
 
     private fun getCategoryTitle(remainingDays: Int): String {
         return when (remainingDays) {
-            0    -> "Tasks for today"
-            1    -> "Tasks for tomorrow"
+            0 -> "Tasks for today"
+            1 -> "Tasks for tomorrow"
             else -> "Upcoming tasks"
         }
     }

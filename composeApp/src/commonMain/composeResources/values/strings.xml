@@ -19,4 +19,7 @@
     <string name="tasks_for_today">Tasks for today</string>
     <string name="tasks_for_tomorrow">Tasks for tomorrow</string>
     <string name="upcoming_tasks">Upcoming tasks</string>
+    <string name="empty_list_view_1">You don't have any tasks yet.\n Click </string>
+    <string name="empty_list_view_2">+ Add task</string>
+    <string name="empty_list_view_3"> to add new task.</string>
 </resources>

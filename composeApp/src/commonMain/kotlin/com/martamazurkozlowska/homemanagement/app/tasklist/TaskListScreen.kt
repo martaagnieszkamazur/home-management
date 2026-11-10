@@ -16,7 +16,7 @@ fun TaskListScreen(
 ) {
     val viewState by viewModel.viewStateFlow.collectAsStateWithLifecycle()
     TaskListView(
-        items = viewState.taskList,
+        viewState = viewState,
         onSettingsClick = onSettingsClick,
         onEditTaskClick = onEditTaskClick,
         onCompleteClick = viewModel::onCompleteClick,
