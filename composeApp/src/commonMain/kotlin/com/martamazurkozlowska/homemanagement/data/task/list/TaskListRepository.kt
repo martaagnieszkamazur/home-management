@@ -15,20 +15,30 @@ class TaskListRepository(
 
     private val prettyJson = Json { prettyPrint = true }
 
-    fun getTaskList(): Flow<List<TaskItemUiModel>> =
+    fun getTaskList(): Flow<TaskListDataResult> =
         storageManager.getTaskListJson().map {
             try {
-                Json.decodeFromString<List<TaskItemApiModel>>(it).map { it.toUiModel() }
+                val list = Json.decodeFromString<List<TaskItemApiModel>>(it).map { it.toUiModel() }
+                TaskListDataResult.Success(list)
             } catch (exception: Exception) {
                 exception.printStackTrace()
-                emptyList()
+                TaskListDataResult.Error
             }
         }
+
+    fun getTaskListOrEmpty(): Flow<List<TaskItemUiModel>> {
+        return getTaskList().map {
+            when (it) {
+                is TaskListDataResult.Success -> it.taskList
+                is TaskListDataResult.Error -> emptyList()
+            }
+        }
+    }
 
     fun getTaskListJson(): Flow<String> = storageManager.getTaskListJson().map {
         try {
             Json.decodeFromString<List<TaskItemApiModel>>(it).toFormattedJson()
-        } catch (exception: Exception){
+        } catch (exception: Exception) {
             exception.printStackTrace()
             "[]"
         }

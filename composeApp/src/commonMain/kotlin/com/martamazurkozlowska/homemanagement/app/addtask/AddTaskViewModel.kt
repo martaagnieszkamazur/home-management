@@ -34,7 +34,7 @@ class AddTaskViewModel(
 
     val notesTextState = TextFieldState()
 
-    val taskListFlow: StateFlow<List<TaskItemUiModel>> = taskListRepository.getTaskList().stateIn(
+    val taskListFlow: StateFlow<List<TaskItemUiModel>> = taskListRepository.getTaskListOrEmpty().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = emptyList()

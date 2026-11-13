@@ -2,6 +2,7 @@ package com.martamazurkozlowska.homemanagement.app.tasklist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.martamazurkozlowska.homemanagement.data.task.list.TaskListDataResult
 import com.martamazurkozlowska.homemanagement.data.task.list.TaskListRepository
 import com.martamazurkozlowska.homemanagement.ui.components.taskitem.TaskItemUiModel
 import com.martamazurkozlowska.homemanagement.ui.taskcategory.BaseTaskListItemUiModel
@@ -19,19 +20,27 @@ class TaskListViewModel(
     private var taskList: List<TaskItemUiModel> = emptyList()
 
     val viewStateFlow: StateFlow<TaskListViewState> =
-        repository.getTaskList().map { it.sortedBy { it.remainingDays } }.map {
-            this.taskList = it
-            if (it.isEmpty()) {
-                TaskListViewState.Empty
-            } else {
-                val categorizedList = getCategorizedItems(it)
-                TaskListViewState.Content(categorizedList)
+        repository.getTaskList().map {
+            when (it) {
+                is TaskListDataResult.Success -> createViewState(it.taskList)
+                is TaskListDataResult.Error -> TaskListViewState.Error
             }
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
             initialValue = TaskListViewState.Content(emptyList()),
         )
+
+    private fun createViewState(taskList: List<TaskItemUiModel>): TaskListViewState {
+        val sortedTaskList = taskList.sortedBy { it.remainingDays }
+        this.taskList = sortedTaskList
+        return if (sortedTaskList.isEmpty()) {
+            TaskListViewState.Empty
+        } else {
+            val categorizedList = getCategorizedItems(sortedTaskList)
+            TaskListViewState.Content(categorizedList)
+        }
+    }
 
     fun onCompleteClick(task: TaskItemUiModel) {
         val list = taskList.toMutableList()
