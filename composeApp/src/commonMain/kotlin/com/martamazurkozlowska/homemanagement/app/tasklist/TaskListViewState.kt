@@ -9,5 +9,7 @@ sealed class TaskListViewState {
     ) : TaskListViewState()
 
     object Empty : TaskListViewState()
+
+    object Error : TaskListViewState()
 }
 
